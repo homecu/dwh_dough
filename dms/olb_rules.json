@@ -1,0 +1,214 @@
+{
+    "rules": [
+        {
+            "rule-type": "selection",
+            "rule-id": "1",
+            "rule-name": "include-OLBUser",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBUser"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "2",
+            "rule-name": "include-OLBFiSubRole",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBFiSubRole"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "3",
+            "rule-name": "include-OLBUserRole",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBUserRole"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "4",
+            "rule-name": "include-OLBFinancialInstitution",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBFinancialInstitution"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "5",
+            "rule-name": "include-BlossomCompany",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "BlossomCompany"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "6",
+            "rule-name": "include-OLBUserAccount",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBUserAccount"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "7",
+            "rule-name": "include-OLBAccountNumber",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBAccountNumber"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "8",
+            "rule-name": "include-OLBSubAccount",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBSubAccount"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "9",
+            "rule-name": "include-OLBLoan",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBLoan"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "10",
+            "rule-name": "include-OLBSubAccountExternal",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBSubAccountExternal"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "11",
+            "rule-name": "include-OLBSubAccountExternalUser",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBSubAccountExternalUser"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "12",
+            "rule-name": "include-OLBAccountType",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBAccountType"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "13",
+            "rule-name": "include-OLBUserAccountOwnershipType",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBUserAccountOwnershipType"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "14",
+            "rule-name": "include-OLBTransactionInfo",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBTransactionInfo"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "15",
+            "rule-name": "include-OLBTransactionCategory",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBTransactionCategory"
+            },
+            "rule-action": "include"
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "16",
+            "rule-name": "include-OLBSubAccountTransaction",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBSubAccountTransaction"
+            },
+            "rule-action": "include",
+            "filters": [
+                {
+                    "filter-type": "source",
+                    "column-name": "status",
+                    "filter-conditions": [
+                        {
+                            "filter-operator": "null"
+                        }
+                    ]
+                },
+                {
+                    "filter-type": "source",
+                    "column-name": "deletedAt",
+                    "filter-conditions": [
+                        {
+                            "filter-operator": "null"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "rule-type": "selection",
+            "rule-id": "17",
+            "rule-name": "include-OLBLoanTransaction",
+            "object-locator": {
+                "schema-name": "public",
+                "table-name": "OLBLoanTransaction"
+            },
+            "rule-action": "include",
+            "filters": [
+                {
+                    "filter-type": "source",
+                    "column-name": "status",
+                    "filter-conditions": [
+                        {
+                            "filter-operator": "null"
+                        }
+                    ]
+                },
+                {
+                    "filter-type": "source",
+                    "column-name": "deletedAt",
+                    "filter-conditions": [
+                        {
+                            "filter-operator": "null"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
