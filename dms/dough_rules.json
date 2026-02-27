@@ -1,0 +1,11 @@
+{
+  "rules": [
+    {
+      "rule-type": "selection",
+      "rule-id": "1",
+      "rule-name": "include-all-public-tables",
+      "object-locator": { "schema-name": "public", "table-name": "%" },
+      "rule-action": "include"
+    }
+  ]
+}
