@@ -1,0 +1,69 @@
+{
+  "Comment": "Ejemplo simple desde JSON",
+  "StartAt": "OLB Full Load",
+  "States": {
+    "OLB Full Load": {
+      "Type": "Task",
+      "Parameters": {
+        "ReplicationTaskArn.$": "$.DmsReplicationArn",
+        "StartReplicationTaskType": "resume-processing"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:databasemigration:startReplicationTask",
+      "Next": "StartCrawler"
+    },
+    "StartCrawler": {
+      "Type": "Task",
+      "Parameters": {
+        "Name.$": "$.CrawlerName"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "Next": "Parallel"
+    },
+    "Parallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Fill dims fact and dictionary",
+          "States": {
+            "Fill dims fact and dictionary": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dwh_initial_aurora_dough",
+                "Arguments": {
+                  "--connection_name.$": "$.ConnectionName",
+                  "--dynamo_dict_name.$": "$.DynamoDictName",
+                  "--GLUE_INPUT_DATABASE.$": "$.GlueInputDatabase",
+                  "--TARGET_BUCKET.$": "$.TargetBucket"
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Create Source of Truth Iceberg Tables",
+          "States": {
+            "Create Source of Truth Iceberg Tables": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dwh_olb_create_iceberg_dough",
+                "Arguments": {
+                  "--GLUE_INPUT_DATABASE.$": "$.GlueInputDatabase",
+                  "--GLUE_OUTPUT_DATABASE.$": "$.GlueOutputDatabase",
+                  "--TARGET_BUCKET.$": "$.TargetBucket",
+                  "--TARGET_PREFIX.$": "$.TargetPrefix",
+                  "--conf.$": "$.Conf",
+                  "--datalake-formats.$": "$.DatalakeFormats"
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "End": true
+    }
+  }
+}
