@@ -1,19 +1,8 @@
-
-def print_db_connection_info(cfg):
-    hostname = cfg["host"]
-    port = int(cfg["port"])
-    username = cfg["username"]
-    password = cfg["password"]
-    db = os.environ["CONSOLIDATED_DB"]
-    print(f"Connecting to DB at {hostname}:{port} with user {username}")
-
 import json
 import os
 import base64
 import boto3
 from botocore.exceptions import ClientError
-
-
 
 _secrets_client = boto3.client("secretsmanager")
 _cached = None  # cache entre invocaciones (mismo warm container)
@@ -23,7 +12,7 @@ REQUIRED_KEYS = ("host", "port", "username", "password")
 dynamodb = boto3.client('dynamodb')
 DYNAMO_DICT_NAME = 'dwh_olb_dictionary_dough_dev'
 
-# List of tables to upsert in DynamoDB
+# Lista de tablas para hacer upsert en DynamoDB
 UPDYNAMO_TABLES = {
     "olbuseraccountownershiptype",
     "olbaccounttype",
@@ -35,7 +24,7 @@ UPDYNAMO_TABLES = {
 
 def upsert_dynamo_record(table_name, record_json, dynamo_table_name):
     item = {}
-    # The id field: table_name + id
+    #  id: table_name + id
     item['id'] = {'S': f"{table_name}{record_json['id']}"}
     for k, v in record_json.items():
         if k == 'id':
@@ -54,6 +43,13 @@ def upsert_dynamo_record(table_name, record_json, dynamo_table_name):
         Item=item
     )
 
+def print_db_connection_info(cfg):
+    hostname = cfg["host"]
+    port = int(cfg["port"])
+    username = cfg["username"]
+    password = cfg["password"]
+    db = os.environ["CONSOLIDATED_DB"]
+    print(f"Connecting to DB at {hostname}:{port} with user {username}")
 
 
 def _load_db_config():
@@ -91,7 +87,7 @@ def handler(event, context):
 
     print_db_connection_info(cfg)
 
-    # DynamoDB upsert for specified tables
+    # DynamoDB upsert para las tablas especificadas
     if 'records' in event:
         for record in event['records']:
             try:
@@ -103,11 +99,12 @@ def handler(event, context):
 
                 if isinstance(data, dict) and 'data' in data and 'metadata' in data:
                     table_name = data['metadata'].get('table-name', '').lower()
+                    #Actualizando diccionario en DynamoDB
                     if table_name in UPDYNAMO_TABLES:
                         record_json = data['data']
-                        # Replace with your DynamoDB table name
                         dynamo_table_name = DYNAMO_DICT_NAME
                         upsert_dynamo_record(table_name, record_json, dynamo_table_name)
+
             except Exception as e:
                 print(f"DynamoDB upsert error: {e}")
 
