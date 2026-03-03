@@ -61,25 +61,12 @@ def handler(event, context):
                 # Si no es JSON, tratarlo como texto plano
                 data = payload
             
-            # Lógica de filtrado: aquí puedes implementar tu lógica personalizada
-            # Por ejemplo, filtrar archivos de control o modificar datos
-            
-            # Ejemplo 1: Filtrar registros que contengan cierta palabra
-            # if isinstance(data, dict) and data.get('type') == 'control':
-            #     output_records.append({
-            #         'recordId': record_id,
-            #         'result': 'Dropped',
-            #         'data': record['data']
-            #     })
-            #     logger.info(f"Registro {record_id} descartado (archivo de control)")
-            #     continue
-            
-            # Ejemplo 2: Agregar timestamp o modificar el registro
+            # Filtrar registros que solo tienen metadata y no tienen datos reales
             if isinstance(data, dict):
                 # Añadir un campo procesado
                 data['processed_by'] = 'filter_control_files_lambda'
                 data['lambda_version'] = context.function_version if context else 'local'
-                
+
                 # Filtrar registros de control basados en un campo
                 if data.get('metadata', {}).get('is_control_file', False):
                     output_records.append({
@@ -88,6 +75,16 @@ def handler(event, context):
                         'data': record['data']
                     })
                     logger.info(f"Registro {record_id} descartado: archivo de control detectado")
+                    continue
+
+                # Filtrar registros que solo tienen metadata (no tienen otros campos además de metadata)
+                if set(data.keys()) == {'metadata'}:
+                    output_records.append({
+                        'recordId': record_id,
+                        'result': 'Dropped',
+                        'data': record['data']
+                    })
+                    logger.info(f"Registro {record_id} descartado: solo metadata, sin datos reales")
                     continue
             
             # Re-codificar el registro procesado

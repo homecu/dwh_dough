@@ -9,7 +9,46 @@
         "StartReplicationTaskType": "resume-processing"
       },
       "Resource": "arn:aws:states:::aws-sdk:databasemigration:startReplicationTask",
-      "Next": "StartCrawler"
+      "ResultPath": "$.DmsTaskResult",
+      "Next": "Wait For DMS Task"
+    },
+    "Wait For DMS Task": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "Debug Dms Arn"
+    },
+    "Debug Dms Arn": {
+      "Type": "Pass",
+      "ResultPath": "$.DebugDmsArn",
+      "Parameters": {
+        "DmsReplicationArn.$": "$.DmsReplicationArn"
+      },
+      "Next": "Check DMS Task Status"
+    },
+    "Check DMS Task Status": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:databasemigration:describeReplicationTasks",
+      "Parameters": {
+        "Filters": [
+          {
+            "Name": "replication-task-arn",
+            "Values.$": "States.Array($.DmsReplicationArn)"
+          }
+        ]
+      },
+      "ResultPath": "$.DmsTaskStatus",
+      "Next": "Is DMS Task Complete?"
+    },
+    "Is DMS Task Complete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DmsTaskStatus.ReplicationTasks[0].Status",
+          "StringEquals": "stopped",
+          "Next": "StartCrawler"
+        }
+      ],
+      "Default": "Wait For DMS Task"
     },
     "StartCrawler": {
       "Type": "Task",
@@ -17,7 +56,33 @@
         "Name.$": "$.CrawlerName"
       },
       "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
-      "Next": "Parallel"
+      "ResultPath": "$.CrawlerResult",
+      "Next": "Wait For Crawler"
+    },
+    "Wait For Crawler": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "Check Crawler Status"
+    },
+    "Check Crawler Status": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
+      "Parameters": {
+        "Name.$": "$.CrawlerName"
+      },
+      "ResultPath": "$.CrawlerStatus",
+      "Next": "Is Crawler Complete?"
+    },
+    "Is Crawler Complete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.CrawlerStatus.Crawler.State",
+          "StringEquals": "READY",
+          "Next": "Parallel"
+        }
+      ],
+      "Default": "Wait For Crawler"
     },
     "Parallel": {
       "Type": "Parallel",
