@@ -1,0 +1,39 @@
+[
+  {
+    "data": {
+    "id": 102030,
+    "createdAt": "2023-02-07T21:50:42.614000",
+    "icon": "<svg width=\"19\" height=\"20\" viewBox=\"0 0 19 20\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12.7002 14.25V13.25C12.7002 12.1454 13.5956 11.25 14.7002 11.25C15.1969 11.25 15.6513 11.431 16.001 11.7308M12.2002 18.25H17.2002C17.7525 18.25 18.2002 17.8023 18.2002 17.25V15.25C18.2002 14.6977 17.7525 14.25 17.2002 14.25H12.2002C11.6479 14.25 11.2002 14.6977 11.2002 15.25V17.25C11.2002 17.8023 11.6479 18.25 12.2002 18.25Z\" stroke=\"#9CA3AF\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M15.5994 9.25C15.5994 9.69183 15.9576 10.05 16.3994 10.05C16.8412 10.05 17.1994 9.69183 17.1994 9.25H15.5994ZM8.89941 17.55C9.34124 17.55 9.69941 17.1918 9.69941 16.75C9.69941 16.3082 9.34124 15.95 8.89941 15.95V17.55ZM10.4607 7.2743C10.7503 7.60802 11.2555 7.64381 11.5893 7.35424C11.923 7.06468 11.9588 6.55941 11.6692 6.2257L10.4607 7.2743ZM7.33813 11.2257C7.04856 10.892 6.5433 10.8562 6.20958 11.1458C5.87587 11.4353 5.84008 11.9406 6.12965 12.2743L7.33813 11.2257ZM9.69941 5.08333C9.69941 4.64151 9.34124 4.28333 8.89941 4.28333C8.45759 4.28333 8.09941 4.64151 8.09941 5.08333H9.69941ZM8.09941 13.4166C8.0994 13.8585 8.45757 14.2167 8.8994 14.2167C9.34123 14.2167 9.6994 13.8585 9.69941 13.4167L8.09941 13.4166ZM8.89941 15.95C5.19911 15.95 2.19941 12.9503 2.19941 9.25H0.599414C0.599414 13.834 4.31545 17.55 8.89941 17.55V15.95ZM2.19941 9.25C2.19941 5.54969 5.19911 2.55 8.89941 2.55V0.95C4.31545 0.95 0.599414 4.66604 0.599414 9.25H2.19941ZM8.89941 2.55C12.5997 2.55 15.5994 5.54969 15.5994 9.25H17.1994C17.1994 4.66604 13.4834 0.95 8.89941 0.95V2.55ZM8.89941 8.45C8.34497 8.45 7.8792 8.29873 7.57541 8.0962C7.26602 7.88995 7.19941 7.69286 7.19941 7.58333H5.59941C5.59941 8.39428 6.09245 9.03053 6.68789 9.42748C7.28892 9.82817 8.07315 10.05 8.89941 10.05V8.45ZM7.19941 7.58333C7.19941 7.4738 7.26602 7.27672 7.57541 7.07046C7.8792 6.86793 8.34497 6.71667 8.89941 6.71667V5.11667C8.07315 5.11667 7.28892 5.3385 6.68789 5.73918C6.09245 6.13614 5.59941 6.77239 5.59941 7.58333H7.19941ZM8.89941 6.71667C9.65945 6.71667 10.2192 6.99592 10.4607 7.2743L11.6692 6.2257C11.0462 5.50774 9.99008 5.11667 8.89941 5.11667V6.71667ZM8.89941 10.05C9.45386 10.05 9.91963 10.2013 10.2234 10.4038C10.5328 10.6101 10.5994 10.8071 10.5994 10.9167H12.1994C12.1994 10.1057 11.7064 9.46947 11.1109 9.07251C10.5099 8.67183 9.72568 8.45 8.89941 8.45V10.05ZM8.09941 5.08333V5.91667H9.69941V5.08333H8.09941ZM8.09943 12.5833L8.09941 13.4166L9.69941 13.4167L9.69943 12.5833L8.09943 12.5833ZM8.89944 11.7833C8.1394 11.7833 7.57967 11.5041 7.33813 11.2257L6.12965 12.2743C6.75262 12.9923 7.80877 13.3833 8.89943 13.3833L8.89944 11.7833ZM10.5994 10.9167C10.5994 11.0262 10.5328 11.2233 10.2234 11.4295C9.91965 11.6321 9.45388 11.7833 8.89943 11.7833V13.3833C9.7257 13.3833 10.5099 13.1615 11.111 12.7608C11.7064 12.3639 12.1994 11.7276 12.1994 10.9167H10.5994ZM8.09941 5.91667L8.09943 12.5833L9.69943 12.5833L9.69941 5.91666L8.09941 5.91667Z\" fill=\"#9CA3AF\"/>\n</svg>\n",
+    "updatedAt": "2023-02-07T21:50:42.614000",
+    "value": "GL"
+  },
+  "metadata": {
+    "timestamp": "2026-03-03T23:07:42.776258Z",
+    "record-type": "data",
+    "operation": "update",
+    "partition-key-type": "schema-table",
+    "schema-name": "public",
+    "table-name": "olbaccounttype"
+  }
+  },
+  {
+    "data": {
+      "id": 1,
+      "name": "Blossom Devs Credit Union",
+      "domain": "homecu.blossomdev.com",
+      "config": "{\"Logo\": \"https://devolbassets.static-content.blossomdev.com/dev/blossomcompany/1/logos/logo.png\", \"apps\": {\"banking\": {\"appLogo\": \"https://devolbassets.static-content.blossomdev.com/dev/blossomcompany/1/mobile/icon/icon.png?timestamp=1707753738991\", \"version\": {\"ios\": \"1.0.578\", \"android\": \"1.0.578\", \"forceUpdate\": false}}}, \"theme\": {\"url\": \"https://devolbassets.static-content.blossomdev.com/dev/blossomcompany/1/theme/tailwindcss.css\", \"colors\": {\"primary\": {\"color\": \"emerald\", \"pallette\": {\"_50\": \"#F7F9FB\", \"_100\": \"#F2F5F7\", \"_200\": \"#A0BDD8\", \"_300\": \"#4E80AF\", \"_400\": \"#BE531C\", \"_500\": \"#BE531C\", \"_600\": \"#003B5C\", \"_700\": \"#00273D\", \"_800\": \"#001F30\", \"_900\": \"#04151E\", \"DEFAULT\": \"#003B5C\"}, \"hexadecimal\": \"#059669\"}}, \"breezeWaterMark\": true}, \"Favicon\": \"https://devolbassets.static-content.blossomdev.com/dev/blossomcompany/1/logos/iconlogo.png\", \"IconLogo\": \"https://devolbassets.static-content.blossomdev.com/dev/blossomcompany/1/logos/iconlogo.png\", \"appsUrls\": {\"appstoreURL\": \"https://apps.apple.com/us/app/bcu-dev/id6443591856xc\", \"playstoreURL\": \"https://play.google.com/store/apps/details?id=com.blossomolbmemberapp.bcudev\"}, \"cronJobs\": {}, \"metadata\": {\"migrationFlowApp\": \"HAS_PASSWORD\", \"welcomeMigrationApp\": \"devolbassets.static-content.blossomdev.comdev1metadataGroup1692.pn\"}, \"ncuaInfo\": {\"assets\": 10000000, \"employees\": 20, \"memberships\": 100, \"charterNumber\": \"15\"}, \"timeZone\": \"America/New_York\", \"platforms\": {\"authUrl\": \"https://devauth.homecu.blossomdev.com\", \"magicUrl\": \"https://devadmin.homecu.blossomdev.com\", \"breezeUrl\": \"https://devbreeze.homecu.blossomdev.com\", \"memberUrl\": \"https://devmember.homecu.blossomdev.com\", \"viewerUrl\": \"https://devviewer.homecu.blossomdev.com\", \"prodigyUrl\": \"https://qa1-aws.cuprodigy.com/qa\", \"websiteUrl\": \"https://www.example.com\"}, \"authValues\": {\"token_endpoint\": \"https://prodoauthapi.blossomapis.com/HOMECU/oauth/token\", \"scopes_supported\": [\"openid\", \"offline_access\"], \"userinfo_endpoint\": \"https://prodoauthapi.blossomapis.com/user/getUser\", \"authorization_endpoint\": \"https://devauth.homecu.blossomdev.com/sign-in\", \"response_types_supported\": [\"code\"], \"token_endpoint_auth_methods_supported\": [\"client_secret_basic\"]}, \"otherLogos\": [\"https://devolbassets.static-content.blossomdev.com/dev/blossomcompany/1/other-logos/icon.jpeg\"], \"officeHours\": {\"sunday\": {\"end\": 24, \"start\": 0}, \"saturday\": {\"end\": 24, \"start\": 0}, \"weekDays\": {\"end\": 24, \"start\": 0}}, \"supportEmail\": \"support.homecu@yopmail.com\", \"downPlatforms\": {\"magic\": {\"web\": false}, \"member\": {\"mobile\": false}}, \"sendEmailFrom\": \"no-reply@blossom.net\"}",
+      "createdat": "2022-08-01 22:52:27.681000 UTC",
+      "updatedat": "2025-07-29 20:41:48.232000 UTC",
+      "code": "HOMECU",
+      "idcountry": 1
+    },
+    "metadata": {
+      "timestamp": "2026-03-03T23:07:42.776258Z",
+      "record-type": "data",
+      "operation": "update",
+      "partition-key-type": "schema-table",
+      "schema-name": "public",
+      "table-name": "blossomcompany"
+    }
+  }
+]

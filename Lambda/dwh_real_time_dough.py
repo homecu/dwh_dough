@@ -1,3 +1,5 @@
+import psycopg2
+import psycopg2.extras
 import json
 import os
 import base64
@@ -10,7 +12,8 @@ _cached = None  # cache entre invocaciones (mismo warm container)
 REQUIRED_KEYS = ("host", "port", "username", "password")
 
 dynamodb = boto3.client('dynamodb')
-DYNAMO_DICT_NAME = 'dwh_olb_dictionary_dough_dev'
+
+
 
 # Lista de tablas para hacer upsert en DynamoDB
 UPDYNAMO_TABLES = {
@@ -19,8 +22,9 @@ UPDYNAMO_TABLES = {
     "olbuserstatus",
     "olbtransactioncategory",
     "olbuserrole",
-    "olbfisubrole"
-}
+    "olbfisubrole",
+    "blossomcompany"
+    }
 
 def upsert_dynamo_record(table_name, record_json, dynamo_table_name):
     item = {}
@@ -43,13 +47,83 @@ def upsert_dynamo_record(table_name, record_json, dynamo_table_name):
         Item=item
     )
 
-def print_db_connection_info(cfg):
-    hostname = cfg["host"]
-    port = int(cfg["port"])
-    username = cfg["username"]
-    password = cfg["password"]
-    db = os.environ["CONSOLIDATED_DB"]
-    print(f"Connecting to DB at {hostname}:{port} with user {username}")
+def upsert_blossomcompany(blossomcompany_record, conn):
+    """
+    Update dim_company in Aurora for the given blossomcompany record using an open connection.
+    """
+    with conn.cursor() as cursor:
+        sql = '''
+            UPDATE dim_company
+            SET idblossomcompany = %s, name = %s, lastUploaded = NOW()
+            WHERE idblossomcompany = %s
+        '''
+        cursor.execute(sql, (blossomcompany_record['id'], blossomcompany_record['name'], blossomcompany_record['id']))
+    conn.commit()
+
+def upsert_olbfinancialinstitution(record_json, conn):
+    """
+    Upsert logic for dim_company: UPDATE if exists, otherwise INSERT.
+    """
+    # Fetch blossomcompany info from DynamoDB
+    blossomcompany_id = record_json.get('idblossomcompany')
+    blossomcompany_name = None
+    if blossomcompany_id:
+        try:
+            response = dynamodb.get_item(
+                TableName=os.environ["TABLE_OLB_DICTIONARY_DOUGH"],
+                Key={
+                    'id': {'S': f"blossomcompany{blossomcompany_id}"}
+                }
+            )
+            item = response.get('Item')
+            if item:
+                blossomcompany_name = item.get('name', {}).get('S')
+        except Exception as e:
+            print(f"Error fetching blossomcompany from DynamoDB: {e}")
+
+    with conn.cursor() as cursor:
+        # Check if record exists
+        cursor.execute(
+            "SELECT 1 FROM dim_company WHERE idolbfinancialinstitution = %s",
+            (record_json['id'],)
+        )
+        exists = cursor.fetchone()
+        idcompany = record_json['id']
+        idclient = '1'
+
+        if exists:
+            sql = '''
+                UPDATE dim_company
+                SET idolbfinancialinstitution = %s, idcompany = %s, idclient = %s, idblossomcompany = %s, name = %s, lastUploaded = NOW()
+                WHERE idolbfinancialinstitution = %s
+            '''
+            cursor.execute(sql, (record_json['id'], idcompany, idclient, blossomcompany_id, blossomcompany_name, record_json['id']))
+        else:
+            sql = '''
+                INSERT INTO dim_company (idolbfinancialinstitution, idcompany, idclient, idblossomcompany, name, lastUploaded)
+                VALUES (%s, %s, %s, %s, %s, NOW())
+            '''
+            cursor.execute(sql, (record_json['id'], idcompany, idclient, blossomcompany_id, blossomcompany_name))
+    conn.commit()
+
+def get_aurora_connection(aurora_config):
+    """
+    Returns a psycopg2 connection to Aurora PostgreSQL using the provided config dict.
+    """
+    hostname = aurora_config['host']
+    port = int(aurora_config['port'])
+    username = aurora_config['username']
+    password = aurora_config['password']
+    dbname = os.environ["CONSOLIDATED_DB"]
+    print(f"Connecting to DB {dbname} at {hostname}:{port} with user {username}")
+    return psycopg2.connect(
+        host=hostname,
+        port=port,
+        user=username,
+        password=password,
+        dbname=dbname,
+        cursor_factory=psycopg2.extras.RealDictCursor
+    )
 
 
 def _load_db_config():
@@ -83,31 +157,45 @@ def _load_db_config():
 
 
 def handler(event, context):
-    cfg = _load_db_config()
+    
+    # Get Aurora config from secrets
+    aurora_config = _load_db_config()
+    aurora_config['user'] = aurora_config.pop('username')
+    aurora_config['db'] = os.environ.get('CONSOLIDATED_DB', 'AURORA_DB')
 
-    print_db_connection_info(cfg)
+    try:
+        conn = get_aurora_connection(aurora_config)
+    except Exception as conn_e:
+        print(f"Error connecting to Aurora: {conn_e}")
 
-    # DynamoDB upsert para las tablas especificadas
-    if 'records' in event:
-        for record in event['records']:
-            try:
-                payload = base64.b64decode(record['data']).decode('utf-8')
+    if 'Records' in event:
+        try:
+            for record in event['Records']:
                 try:
+                    raw = record['kinesis']['data']
+                    payload = base64.b64decode(raw).decode('utf-8')
                     data = json.loads(payload)
-                except json.JSONDecodeError:
-                    data = payload
+                    table_name = data.get('metadata', {}).get('table-name', '').lower()
 
-                if isinstance(data, dict) and 'data' in data and 'metadata' in data:
-                    table_name = data['metadata'].get('table-name', '').lower()
-                    #Actualizando diccionario en DynamoDB
                     if table_name in UPDYNAMO_TABLES:
                         record_json = data['data']
-                        dynamo_table_name = DYNAMO_DICT_NAME
-                        upsert_dynamo_record(table_name, record_json, dynamo_table_name)
+                        upsert_dynamo_record(table_name, record_json, os.environ["TABLE_OLB_DICTIONARY_DOUGH"])
 
-            except Exception as e:
-                print(f"DynamoDB upsert error: {e}")
+                    if table_name == 'blossomcompany' and conn is not None:
+                        upsert_blossomcompany(record_json, conn)
 
+                    elif table_name == 'olbfinancialinstitution' and conn is not None:
+                        upsert_olbfinancialinstitution(record_json, conn)
 
-
+                    print(payload)
+                except Exception as e:
+                    print(f"Error decoding record: {e}")
+        finally:
+            if conn:
+                try:
+                    conn.close()
+                except Exception as close_e:
+                    print(f"Error closing Aurora connection: {close_e}")
+    else:
+        print(event)
     return {"ok": True}
