@@ -11,6 +11,7 @@ from awsglue.job import Job
 from py4j.java_gateway import java_import
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
+from decimal import Decimal
 
 # --- Logging setup ---
 log_stream = StringIO()
@@ -92,6 +93,7 @@ try:
             idClient  INT NOT NULL,
             name TEXT,
             config JSONB,
+            idblossomcompany TEXT,
             firstUploaded TIMESTAMP,
             lastUploaded TIMESTAMP,
             PRIMARY KEY (idCompany, idClient),
@@ -339,6 +341,7 @@ try:
         .select(
             F.col("ofi.id").cast("string").alias("idCompany"),
             F.lit(1).alias("idClient"),
+            F.col("ofi.idblossomcompany").cast("string").alias("idBlossomCompany"),
             F.col("bc.name").alias("name"),
             job_run_ts.alias("firstUploaded"),
             F.lit(None).cast("timestamp").alias("lastUploaded"),
@@ -624,6 +627,9 @@ try:
         "olbaccounttype",
         "olbuserstatus",
         "olbtransactioncategory",
+        "olbuserrole",
+        "olbfisubrole",
+        "blossomcompany"
     ]
 
     for dict_table_name in dictionary_tables:
@@ -634,17 +640,28 @@ try:
 
         for row in rows:
             item = row.asDict()
-            item["dict_id"] = f"{dict_table_name}{item.get('id', '')}"
+            source_id = item.get("id", "")
+            source_id = "" if source_id is None else str(source_id)
+            item.update({
+                "id": f"{dict_table_name}{source_id}",
+                "source_id": source_id,
+                "source_table": dict_table_name,
+            })
             clean = {}
             for k, v in item.items():
                 if v is None:
                     continue
-                elif isinstance(v, datetime):
+                if isinstance(v, datetime):
                     clean[k] = v.isoformat()
-                elif isinstance(v, (int, float)):
-                    clean[k] = str(v)
+                elif isinstance(v, bool):
+                    clean[k] = v
+                elif isinstance(v, int):
+                    clean[k] = v
+                elif isinstance(v, float):
+                    clean[k] = Decimal(str(v))
                 else:
                     clean[k] = v
+        
             dynamo_table.put_item(Item=clean)
 
         logger.info(f"  Written {len(rows)} items for {dict_table_name}")
