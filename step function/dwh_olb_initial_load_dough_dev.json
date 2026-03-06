@@ -1,0 +1,134 @@
+{
+  "Comment": "Ejemplo simple desde JSON",
+  "StartAt": "OLB Full Load",
+  "States": {
+    "OLB Full Load": {
+      "Type": "Task",
+      "Parameters": {
+        "ReplicationTaskArn.$": "$.DmsReplicationArn",
+        "StartReplicationTaskType": "resume-processing"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:databasemigration:startReplicationTask",
+      "ResultPath": "$.DmsTaskResult",
+      "Next": "Wait For DMS Task"
+    },
+    "Wait For DMS Task": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "Debug Dms Arn"
+    },
+    "Debug Dms Arn": {
+      "Type": "Pass",
+      "ResultPath": "$.DebugDmsArn",
+      "Parameters": {
+        "DmsReplicationArn.$": "$.DmsReplicationArn"
+      },
+      "Next": "Check DMS Task Status"
+    },
+    "Check DMS Task Status": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:databasemigration:describeReplicationTasks",
+      "Parameters": {
+        "Filters": [
+          {
+            "Name": "replication-task-arn",
+            "Values.$": "States.Array($.DmsReplicationArn)"
+          }
+        ]
+      },
+      "ResultPath": "$.DmsTaskStatus",
+      "Next": "Is DMS Task Complete?"
+    },
+    "Is DMS Task Complete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DmsTaskStatus.ReplicationTasks[0].Status",
+          "StringEquals": "stopped",
+          "Next": "StartCrawler"
+        }
+      ],
+      "Default": "Wait For DMS Task"
+    },
+    "StartCrawler": {
+      "Type": "Task",
+      "Parameters": {
+        "Name.$": "$.CrawlerName"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "ResultPath": "$.CrawlerResult",
+      "Next": "Wait For Crawler"
+    },
+    "Wait For Crawler": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "Check Crawler Status"
+    },
+    "Check Crawler Status": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
+      "Parameters": {
+        "Name.$": "$.CrawlerName"
+      },
+      "ResultPath": "$.CrawlerStatus",
+      "Next": "Is Crawler Complete?"
+    },
+    "Is Crawler Complete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.CrawlerStatus.Crawler.State",
+          "StringEquals": "READY",
+          "Next": "Parallel"
+        }
+      ],
+      "Default": "Wait For Crawler"
+    },
+    "Parallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Fill dims fact and dictionary",
+          "States": {
+            "Fill dims fact and dictionary": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dwh_initial_aurora_dough",
+                "Arguments": {
+                  "--connection_name.$": "$.ConnectionName",
+                  "--dynamo_dict_name.$": "$.DynamoDictName",
+                  "--GLUE_INPUT_DATABASE.$": "$.GlueInputDatabase",
+                  "--TARGET_BUCKET.$": "$.TargetBucket"
+                }
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Create Source of Truth Iceberg Tables",
+          "States": {
+            "Create Source of Truth Iceberg Tables": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dwh_olb_create_iceberg_dough",
+                "Arguments": {
+                  "--GLUE_INPUT_DATABASE.$": "$.GlueInputDatabase",
+                  "--GLUE_OUTPUT_DATABASE.$": "$.GlueOutputDatabase",
+                  "--TARGET_BUCKET.$": "$.TargetBucket",
+                  "--TARGET_PREFIX.$": "$.TargetPrefix",
+                  "--conf.$": "$.Conf",
+                  "--datalake-formats.$": "$.DatalakeFormats"
+                }
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "End": true
+    }
+  }
+}
